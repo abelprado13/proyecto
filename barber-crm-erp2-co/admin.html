@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BarberShop Pro — Administrador</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+<nav class="a-sidebar">
+  <div class="logo">
+    <h2>Barber<span>Shop</span> Pro</h2>
+    <span class="role-chip">⚙️ Administrador</span>
+  </div>
+  <ul class="a-nav">
+    <li class="active" data-target="dashboard"><span class="nav-icon">📊</span> Dashboard</li>
+    <li data-target="pending"><span class="nav-icon">📅</span> Citas Pendientes <span class="notif-dot" id="pending-dot">0</span></li>
+    <li data-target="sales"><span class="nav-icon">💰</span> Ventas</li>
+    <li data-target="crm"><span class="nav-icon">👥</span> CRM Clientes</li>
+    <li data-target="inventory"><span class="nav-icon">📦</span> Inventario</li>
+    <li data-target="schedules"><span class="nav-icon">🚫</span> Horarios</li>
+    <li data-target="catalog-prev"><span class="nav-icon">🏪</span> Catálogo</li>
+  </ul>
+  <div class="a-sidebar-footer">
+    <button class="exit-btn" onclick="exitAdmin()">← Salir del panel</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<main class="a-main" onclick="document.querySelector('.a-sidebar').classList.remove('open')">
+  <button class="menu-toggle" onclick="document.querySelector('.a-sidebar').classList.toggle('open'); event.stopPropagation();">☰</button>
+
+  <!-- DASHBOARD -->
+  <section class="a-section active" id="a-dashboard">
+    <div class="section-header"><div class="section-header-left"><h1>Dashboard</h1><p>Resumen general del negocio</p></div></div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-val" id="d-clients">0</div><div class="stat-label">Clientes registrados</div></div>
+      <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-val" id="d-pending">0</div><div class="stat-label">Citas pendientes</div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-val" id="d-confirmed">0</div><div class="stat-label">Citas confirmadas</div></div>
+      <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-val" id="d-sales">$0</div><div class="stat-label">Ventas totales</div></div>
+      <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-val" id="d-inventory">0</div><div class="stat-label">Ítems en inventario</div></div>
+      <div class="stat-card"><div class="stat-icon">🛒</div><div class="stat-val" id="d-orders">0</div><div class="stat-label">Órdenes recibidas</div></div>
+    </div>
+    <h3 style="color:var(--primary);margin-bottom:1rem;">📅 Próximas citas confirmadas</h3>
+    <div id="upcoming-list" class="appt-list"></div>
+  </section>
+
+  <!-- CITAS PENDIENTES -->
+  <section class="a-section" id="a-pending">
+    <div class="section-header">
+      <div class="section-header-left"><h1>Citas Pendientes</h1><p>Haz clic en el avatar del cliente para ver detalles y confirmar</p></div>
+    </div>
+    <div id="pending-list" class="appt-list"></div>
+  </section>
+
+  <!-- VENTAS -->
+  <section class="a-section" id="a-sales">
+    <div class="section-header"><div class="section-header-left"><h1>Ventas</h1><p>Órdenes de compra de clientes</p></div></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Cliente</th><th>Productos</th><th>Total</th><th>Pago</th><th>Estado</th><th>Fecha</th><th>Acción</th></tr></thead>
+        <tbody id="sales-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CRM -->
+  <section class="a-section" id="a-crm">
+    <div class="section-header"><div class="section-header-left"><h1>CRM: Clientes</h1><p>Administra la información de tus clientes</p></div></div>
+    <div class="admin-form-wrap">
+      <form id="form-client" onsubmit="return false">
+        <input type="hidden" id="client-id">
+        <div class="form-row">
+          <div class="input-group"><label>Nombre completo</label><input type="text" id="client-name" placeholder="Juan Pérez" required></div>
+          <div class="input-group"><label>Teléfono (con código país)</label><input type="tel" id="client-phone" placeholder="+52 5512345678"></div>
+        </div>
+        <div class="input-group"><label>Usuario</label><input type="text" id="client-username" placeholder="usuario123"></div>
+        <div style="display:flex;gap:.8rem;">
+          <button class="btn btn-primary" onclick="saveClient()">💾 Guardar Cliente</button>
+          <button class="btn btn-secondary" id="btn-cancel-client" style="display:none" onclick="cancelClient()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Usuario</th><th>Citas</th><th>Acciones</th></tr></thead>
+      <tbody id="crm-body"></tbody></table>
+    </div>
+  </section>
+
+  <!-- INVENTARIO -->
+  <section class="a-section" id="a-inventory">
+    <div class="section-header"><div class="section-header-left"><h1>Inventario</h1><p>Gestiona servicios y productos</p></div></div>
+    <div class="admin-form-wrap">
+      <form id="form-item" onsubmit="return false">
+        <input type="hidden" id="item-id">
+        <div class="form-row">
+          <div class="input-group"><label>Tipo</label>
+            <select id="item-type"><option value="Servicio">Servicio</option><option value="Producto">Producto</option></select>
+          </div>
+          <div class="input-group"><label>Nombre</label><input type="text" id="item-name" placeholder="Ej. Corte de Cabello"></div>
+        </div>
+        <div class="form-row">
+          <div class="input-group"><label>Precio ($)</label><input type="number" id="item-price" min="0" step="0.01"></div>
+          <div class="input-group"><label>Imagen (opcional)</label><input type="file" id="item-image" accept="image/*"></div>
+        </div>
+        <div style="display:flex;gap:.8rem;">
+          <button class="btn btn-primary" onclick="saveItem()">💾 Guardar Ítem</button>
+          <button class="btn btn-secondary" id="btn-cancel-item" style="display:none" onclick="cancelItem()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Img</th><th>Tipo</th><th>Nombre</th><th>Precio</th><th>Acciones</th></tr></thead>
+      <tbody id="inv-body"></tbody></table>
+    </div>
+  </section>
+
+  <!-- HORARIOS -->
+  <section class="a-section" id="a-schedules">
+    <div class="section-header"><div class="section-header-left"><h1>Horarios</h1><p>Bloquea días o crea días de descanso</p></div></div>
+    <div class="admin-form-wrap" style="max-width:500px;">
+      <h3 style="margin-bottom:1.2rem;">Bloquear un día completo</h3>
+      <div class="form-row">
+        <div class="input-group"><label>Fecha</label><input type="date" id="block-date"></div>
+        <div style="display:flex;align-items:flex-end;padding-bottom:1.2rem;">
+          <button class="btn btn-danger" onclick="blockDay()">🚫 Bloquear día</button>
+        </div>
+      </div>
+      <h3 style="margin:1.2rem 0;">Bloquear horas específicas</h3>
+      <div class="form-row">
+        <div class="input-group"><label>Fecha</label><input type="date" id="block-slot-date"></div>
+        <div class="input-group"><label>Hora</label>
+          <select id="block-slot-time">
+            <option>09:00</option><option>10:00</option><option>11:00</option><option>12:00</option>
+            <option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option>
+            <option>17:00</option><option>18:00</option><option>19:00</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="blockSlot()">🚫 Bloquear hora</button>
+    </div>
+    <h3 style="margin-bottom:1rem;color:var(--primary);">Días y horas bloqueadas</h3>
+    <div id="blocked-list"></div>
+  </section>
+
+  <!-- CATÁLOGO PREVIEW -->
+  <section class="a-section" id="a-catalog-prev">
+    <div class="section-header"><div class="section-header-left"><h1>Vista del Catálogo</h1><p>Así lo ven los clientes</p></div></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.2rem;" id="admin-catalog-grid"></div>
+  </section>
+
+</main>
+
+<!-- ═══════════════ CLIENT DETAIL MODAL ═══════════════ -->
+<div class="modal-overlay" id="client-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="document.getElementById('client-modal').classList.remove('active')">✕</button>
+    <div class="client-modal-avatar" id="cm-avatar">?</div>
+    <div class="client-modal-name" id="cm-name">—</div>
+    <div class="client-modal-sub" id="cm-sub">—</div>
+    <div class="client-detail-rows" id="cm-details"></div>
+    <div style="display:flex;gap:.8rem;">
+      <button class="btn btn-success" style="flex:1" id="cm-confirm-btn" onclick="confirmAppointment()">✅ Confirmar Cita</button>
+      <button class="btn btn-danger btn-sm" id="cm-cancel-btn" onclick="cancelAppointmentAdmin()">Cancelar cita</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/storage.js"></script>
+<script src="js/seed.js"></script>
+<script src="js/admin-app.js"></script>
+</body>
+</html>

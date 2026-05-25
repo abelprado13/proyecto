@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BarberShop Pro — Portal Cliente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/client.css">
+    <style>
+      .pw-wrapper{position:relative;display:flex;align-items:center;}
+      .pw-wrapper input{flex:1;padding-right:2.8rem;}
+      .pw-eye{position:absolute;right:.75rem;background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--muted);padding:0;line-height:1;transition:color .2s;}
+      .pw-eye:hover{color:var(--primary);}
+    </style>
+</head>
+<body class="client-body">
+
+<!-- ═══════════════════ AUTH OVERLAY ═══════════════════ -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-box">
+    <div class="logo">Barber<span>Shop</span> Pro</div>
+    <p class="sub">Tu barbería de confianza</p>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuth('login')">Iniciar Sesión</button>
+      <button class="auth-tab" id="tab-register" onclick="switchAuth('register')">Registrarse</button>
+    </div>
+    <!-- Login -->
+    <div id="form-login">
+      <div class="input-group"><label>Nombre de usuario</label><input type="text" id="login-username" placeholder="usuario123"></div>
+      <div class="input-group"><label>Contraseña</label><div class="pw-wrapper"><input type="password" id="login-pass" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"><button class="pw-eye" type="button" onclick="togglePw('login-pass',this)" title="Mostrar/ocultar contraseña">👁️</button></div></div>
+      <div id="login-err" style="color:var(--danger);font-size:.88rem;margin-bottom:.8rem;display:none;"></div>
+      <button class="btn btn-primary" style="width:100%" onclick="doLogin()">Entrar 💈</button>
+    </div>
+    <!-- Register -->
+    <div id="form-register" style="display:none">
+      <div class="input-group"><label>Nombre completo</label><input type="text" id="reg-name" placeholder="Juan Pérez"></div>
+      <div class="input-group"><label>Teléfono (con código de país)</label><input type="tel" id="reg-phone" placeholder="+52 5512345678"></div>
+      <div class="input-group"><label>Nombre de usuario</label><input type="text" id="reg-username" placeholder="usuario123"></div>
+      <div class="input-group"><label>Contraseña</label><div class="pw-wrapper"><input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres"><button class="pw-eye" type="button" onclick="togglePw('reg-pass',this)" title="Mostrar/ocultar contraseña">👁️</button></div></div>
+      <div id="reg-err" style="color:var(--danger);font-size:.88rem;margin-bottom:.8rem;display:none;"></div>
+      <button class="btn btn-primary" style="width:100%" onclick="doRegister()">Crear cuenta ✂️</button>
+    </div>
+    <p style="text-align:center;margin-top:1.5rem;font-size:.85rem;color:var(--muted);display:flex;justify-content:center;gap:1rem;">
+      <a href="index.html" style="color:var(--primary);text-decoration:none;">← Volver al inicio</a>
+      <span style="opacity:0.3">|</span>
+      <a href="index.html?admin=1" style="color:var(--muted);text-decoration:none;">Acceso Admin 🔐</a>
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+<nav class="c-sidebar">
+  <div class="logo">
+    <h2>Barber<span>Shop</span> Pro</h2>
+    <small id="sb-username">Cargando...</small>
+  </div>
+  <ul class="c-nav">
+    <li class="active" data-target="inicio"><span class="nav-icon">🏠</span><span>Inicio</span></li>
+    <li data-target="catalogo"><span class="nav-icon">✂️</span><span>Catálogo</span></li>
+    <li data-target="citas"><span class="nav-icon">📅</span><span>Agendar Cita</span></li>
+    <li data-target="carrito"><span class="nav-icon">🛒</span><span>Carrito</span><span class="cart-badge" id="cart-badge">0</span></li>
+    <li data-target="cuenta"><span class="nav-icon">👤</span><span>Mi Cuenta</span></li>
+  </ul>
+  <div class="c-user-box">
+    <div class="user-name" id="sb-user-name">—</div>
+    <div class="user-email" id="sb-user-username">—</div>
+    <button class="logout-btn" onclick="Auth.logout()">Cerrar sesión</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<main class="c-main" onclick="document.querySelector('.c-sidebar').classList.remove('open')">
+  <button class="menu-toggle" onclick="document.querySelector('.c-sidebar').classList.toggle('open'); event.stopPropagation();">☰</button>
+
+  <!-- INICIO -->
+  <section class="c-section active" id="s-inicio">
+    <div style="text-align:center;padding:3rem 1rem;">
+      <div style="font-size:5rem;margin-bottom:1rem;">💈</div>
+      <h1 style="font-size:2.5rem;font-weight:900;">Bienvenido, <span id="welcome-name" style="color:var(--primary)">Cliente</span></h1>
+      <p style="color:var(--muted);margin-top:.5rem;font-size:1.05rem;">¿Qué deseas hacer hoy?</p>
+      <div style="display:flex;gap:1rem;justify-content:center;margin-top:2.5rem;flex-wrap:wrap;">
+        <button class="btn btn-primary" style="font-size:1rem;padding:1rem 2rem;" onclick="goTo('catalogo')">✂️ Ver Catálogo</button>
+        <button class="btn btn-secondary" style="font-size:1rem;padding:1rem 2rem;" onclick="goTo('citas')">📅 Agendar Cita</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:2rem;">
+      <div class="stat-card" style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:.5rem;">📅</div>
+        <div id="my-appt-count" style="font-size:2rem;font-weight:900;color:var(--primary);">0</div>
+        <div style="color:var(--muted);font-size:.88rem;">Mis Citas</div>
+      </div>
+      <div class="stat-card" style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:.5rem;">🛒</div>
+        <div id="my-order-count" style="font-size:2rem;font-weight:900;color:var(--primary);">0</div>
+        <div style="color:var(--muted);font-size:.88rem;">Mis Compras</div>
+      </div>
+      <div class="stat-card" style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;text-align:center;">
+        <div style="font-size:2rem;margin-bottom:.5rem;">✂️</div>
+        <div id="services-count" style="font-size:2rem;font-weight:900;color:var(--primary);">0</div>
+        <div style="color:var(--muted);font-size:.88rem;">Servicios</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATÁLOGO -->
+  <section class="c-section" id="s-catalogo">
+    <div class="section-header">
+      <h1>Catálogo</h1>
+      <p>Servicios y productos disponibles</p>
+    </div>
+    <div class="search-bar"><span class="si">🔍</span><input type="text" id="cat-search" placeholder="Buscar..."></div>
+    <div class="cat-filters">
+      <button class="cat-filter-btn active" data-filter="all">Todos</button>
+      <button class="cat-filter-btn" data-filter="Servicio">✂️ Servicios</button>
+      <button class="cat-filter-btn" data-filter="Producto">🛍️ Productos</button>
+    </div>
+    <div class="catalog-grid" id="catalog-grid"></div>
+  </section>
+
+  <!-- CITAS -->
+  <section class="c-section" id="s-citas">
+    <div class="section-header">
+      <h1>Agendar Cita</h1>
+      <p>Selecciona un día disponible en el calendario</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;flex-wrap:wrap;" id="citas-layout">
+      <div>
+        <h3 style="margin-bottom:1rem;color:var(--primary);">📅 Selecciona fecha y hora</h3>
+        <div class="calendar-wrap" id="client-calendar"></div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:1rem;color:var(--primary);">📋 Mis citas registradas</h3>
+        <div id="my-appts-list"><p style="color:var(--muted);">Sin citas aún.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CARRITO -->
+  <section class="c-section" id="s-carrito">
+    <div class="section-header">
+      <h1>🛒 Mi Carrito</h1>
+      <p>Revisa tu pedido antes de pagar</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 380px;gap:2rem;" id="cart-layout">
+      <div id="cart-items-list"></div>
+      <div>
+        <div class="cart-summary">
+          <div class="total-row"><span>Total</span><span id="cart-total">$0.00</span></div>
+          <button class="btn btn-primary" style="width:100%" onclick="openPayment()">💳 Proceder al Pago</button>
+          <button class="btn btn-secondary" style="width:100%;margin-top:.6rem" onclick="Cart.clear();renderCart()">Vaciar carrito</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MI CUENTA -->
+  <section class="c-section" id="s-cuenta">
+    <div class="section-header">
+      <h1>👤 Mi Cuenta</h1>
+      <p>Tu historial de citas y compras, y configuración de perfil</p>
+    </div>
+
+    <!-- PERFIL -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:2rem;margin-bottom:2rem;">
+      <h3 style="color:var(--primary);margin-bottom:1.5rem;">⚙️ Datos de mi perfil</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin-bottom:1.5rem;">
+        <div class="input-group" style="margin-bottom:0;"><label>Nombre completo</label><input type="text" id="prof-name"></div>
+        <div class="input-group" style="margin-bottom:0;"><label>Teléfono</label><input type="tel" id="prof-phone"></div>
+        <div class="input-group" style="margin-bottom:0;"><label>Nombre de usuario</label><input type="text" id="prof-username" readonly style="opacity:0.6;cursor:not-allowed;" title="El nombre de usuario no se puede cambiar"></div>
+        <div class="input-group" style="margin-bottom:0;">
+          <label>Contraseña</label>
+          <div class="pw-wrapper" style="margin-bottom:0;">
+            <input type="password" id="prof-pass">
+            <button class="pw-eye" type="button" onclick="togglePw('prof-pass',this)">👁️</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:1rem;justify-content:space-between;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="updateProfile()">💾 Guardar Cambios</button>
+        <button class="btn btn-danger" onclick="deleteAccount()">🗑️ Eliminar mi cuenta</button>
+      </div>
+    </div>
+    <div class="account-grid">
+      <div>
+        <h3 style="color:var(--primary);margin-bottom:1rem;">📅 Mis Citas</h3>
+        <div id="account-appts"></div>
+      </div>
+      <div>
+        <h3 style="color:var(--primary);margin-bottom:1rem;">🛒 Mis Compras</h3>
+        <div id="account-orders"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════ SLOTS MODAL ═══════════════ -->
+<div class="modal-overlay" id="slots-modal">
+  <div class="modal-box" style="max-width:420px;">
+    <button class="modal-close" onclick="document.getElementById('slots-modal').classList.remove('active')">✕</button>
+    <h2>⏰ Horarios Disponibles</h2>
+    <p id="slots-modal-title">Selecciona tu hora</p>
+    <div class="slots-grid" id="slots-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ SERVICE BOOKING MODAL ═══════════════ -->
+<div class="modal-overlay" id="book-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="document.getElementById('book-modal').classList.remove('active')">✕</button>
+    <h2>✂️ Confirmar Cita</h2>
+    <p>Elige el servicio para tu cita</p>
+    <div class="input-group">
+      <label>Servicio</label>
+      <select id="book-service"></select>
+    </div>
+    <div style="background:var(--bg);border-radius:10px;padding:1rem;margin-bottom:1.5rem;font-size:.9rem;" id="book-summary"></div>
+    <button class="btn btn-primary" style="width:100%" onclick="confirmBooking()">✅ Confirmar Cita</button>
+  </div>
+</div>
+
+<!-- ═══════════════ PAYMENT MODAL ═══════════════ -->
+<div class="modal-overlay" id="payment-modal">
+  <div class="modal-box" style="max-width:500px;">
+    <button class="modal-close" onclick="document.getElementById('payment-modal').classList.remove('active')">✕</button>
+    <h2>💳 Método de Pago</h2>
+    <p>Selecciona cómo deseas pagar</p>
+    <div class="payment-methods">
+      <div class="pay-method active" id="pm-card" onclick="selectPayMethod('card')">💳 Tarjeta</div>
+      <div class="pay-method" id="pm-cash" onclick="selectPayMethod('cash')">💵 Efectivo</div>
+    </div>
+    <!-- Card form -->
+    <div id="card-form">
+      <div class="card-visual">
+        <div style="font-size:.75rem;color:#aaa;letter-spacing:.1em;">NÚMERO DE TARJETA</div>
+        <div class="cv-num" id="cv-num">•••• •••• •••• ••••</div>
+        <div class="cv-row">
+          <div><div style="font-size:.65rem;color:#888;">TITULAR</div><span id="cv-name">NOMBRE TITULAR</span></div>
+          <div><div style="font-size:.65rem;color:#888;">VENCE</div><span id="cv-exp">MM/AA</span></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="input-group"><label>Número de tarjeta</label><input type="text" id="card-num" maxlength="19" placeholder="1234 5678 9012 3456" oninput="fmtCard(this)"></div>
+        <div class="input-group"><label>Titular</label><input type="text" id="card-name" placeholder="Como aparece en la tarjeta"></div>
+      </div>
+      <div class="form-row">
+        <div class="input-group"><label>Fecha de vencimiento</label><input type="text" id="card-exp" maxlength="5" placeholder="MM/AA" oninput="fmtExp(this)"></div>
+        <div class="input-group"><label>CVV</label><input type="text" id="card-cvv" maxlength="4" placeholder="•••"></div>
+      </div>
+    </div>
+    <!-- Cash info -->
+    <div id="cash-info" style="display:none;background:var(--bg);border-radius:10px;padding:1.5rem;text-align:center;margin-bottom:1.5rem;">
+      <div style="font-size:3rem;margin-bottom:.5rem;">💵</div>
+      <p style="font-weight:700;">Pago en efectivo al recibir</p>
+      <p style="color:var(--muted);font-size:.88rem;margin-top:.3rem;">Tu pedido quedará registrado y lo pagarás al recogerlo.</p>
+    </div>
+    <div style="background:var(--bg);border-radius:8px;padding:1rem;margin-bottom:1.2rem;display:flex;justify-content:space-between;font-weight:700;">
+      <span>Total a pagar:</span><span style="color:var(--primary)" id="pay-total">$0.00</span>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="processPayment()">✅ Confirmar Compra</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script src="js/storage.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/calendar.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/seed.js"></script>
+<script src="js/client-app.js"></script>
+<script>
+  // Toggle mostrar/ocultar contraseña
+  function togglePw(inputId, btn){
+    const inp = document.getElementById(inputId);
+    if(inp.type === 'password'){
+      inp.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      inp.type = 'password';
+      btn.textContent = '👁️';
+    }
+  }
+  // Ctrl+Alt+O → ir al login de admin
+  document.addEventListener('keydown', function(e){
+    if(e.ctrlKey && e.altKey && e.key.toLowerCase() === 'o'){
+      e.preventDefault();
+      window.location.href = 'index.html?admin=1';
+    }
+  });
+</script>
+</body>
+</html>
